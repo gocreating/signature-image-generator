@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Signature Image Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.5.4/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.5.4/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const MAX_WIDTH = 600;
+      let { Component } = React;
+      let readImageFile = (file) => new Promise(resolve => {
+        let img = new Image;
+
+        img.onload = () => {
+          let imgObj = {
+            ratio: img.width / img.height,
+            width: img.width,
+            height: img.height,
+            offsetX: 0,
+            img,
+          };
+
+          if (imgObj.width > MAX_WIDTH) {
+            imgObj.width = MAX_WIDTH;
+            imgObj.height = imgObj.width / imgObj.ratio;
+          } else {
+            imgObj.offsetX = (MAX_WIDTH - imgObj.width) / 2;
+          }
+          resolve(imgObj);
+        }
+        img.src = URL.createObjectURL(file);
+      });
+
+      class App extends Component {
+        constructor() {
+          super();
+          this.handleFileChange = this._handleFileChange.bind(this);
+          this.state = {
+            dataURL: '#',
+          };
+        }
+
+        componentDidMount() {
+          this.canvas.width = 100;
+          this.canvas.height = 100;
+        }
+
+        _handleFileChange() {
+          let { files } = this.fileInput;
+          let ctx = this.canvas.getContext('2d');
+          let img = new Image;
+          let imgReaders = [];
+
+          for (let i = 0; i < files.length; i++) {
+            imgReaders.push(readImageFile(files[i]));
+          }
+          Promise.all(imgReaders).then((imgObjs) => {
+            let height = imgObjs.reduce((accHeight, imgObj) => accHeight + imgObj.height, 0);
+            let currentYOffset = 0;
+
+            this.canvas.width = MAX_WIDTH;
+            this.canvas.height = height;
+
+            imgObjs.forEach(imgObj => {
+              ctx.drawImage(imgObj.img, imgObj.offsetX, currentYOffset, imgObj.width, imgObj.height);
+              currentYOffset = currentYOffset + imgObj.height;
+            });
+
+            this.setState({
+              dataURL: this.canvas.toDataURL('image/jpeg'),
+            });
+          });
+        }
+
+        render() {
+          let { dataURL } = this.state;
+
+          return (
+            <div>
+              <h1>Step 1. Select image files</h1>
+              <input
+                multiple
+                type="file"
+                ref={input => this.fileInput = input}
+                onChange={this.handleFileChange}
+              />
+
+              <h1>Step 2. Preview your signature image</h1>
+              <canvas
+                ref={input => this.canvas = input}
+                style={{ border: '1px solid black' }}
+              >
+                Preview Area
+              </canvas>
+
+              <h1>
+                Step 3.
+                <a
+                  href={dataURL}
+                  download="signature.jpg"
+                >
+                  Click Me To Download
+                </a>
+              </h1>
+            </div>
+          )
+        }
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>
