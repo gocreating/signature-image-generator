@@ -11,9 +11,8 @@
     <div id="root"></div>
 
     <script type="text/babel">
-      const MAX_WIDTH = 600;
       let { Component } = React;
-      let readImageFile = (file) => new Promise(resolve => {
+      let readImageFile = (file, maxWidth) => new Promise(resolve => {
         let img = new Image;
 
         img.onload = () => {
@@ -25,11 +24,11 @@
             img,
           };
 
-          if (imgObj.width > MAX_WIDTH) {
-            imgObj.width = MAX_WIDTH;
+          if (imgObj.width > maxWidth) {
+            imgObj.width = maxWidth;
             imgObj.height = imgObj.width / imgObj.ratio;
           } else {
-            imgObj.offsetX = (MAX_WIDTH - imgObj.width) / 2;
+            imgObj.offsetX = (maxWidth - imgObj.width) / 2;
           }
           resolve(imgObj);
         }
@@ -55,15 +54,16 @@
           let ctx = this.canvas.getContext('2d');
           let img = new Image;
           let imgReaders = [];
+          let width = this.widthInput.value;
 
           for (let i = 0; i < files.length; i++) {
-            imgReaders.push(readImageFile(files[i]));
+            imgReaders.push(readImageFile(files[i], width));
           }
           Promise.all(imgReaders).then((imgObjs) => {
             let height = imgObjs.reduce((accHeight, imgObj) => accHeight + imgObj.height, 0);
             let currentYOffset = 0;
 
-            this.canvas.width = MAX_WIDTH;
+            this.canvas.width = width;
             this.canvas.height = height;
 
             imgObjs.forEach(imgObj => {
@@ -88,7 +88,16 @@
 
           return (
             <div>
-              <h1>Step 1. Select image files</h1>
+              <h1>Step 1. Tell me the width of your signature image</h1>
+              <input
+                multiple
+                type="number"
+                min="0"
+                defaultValue="400"
+                ref={input => this.widthInput = input}
+              />
+
+              <h1>Step 2. Select source image files</h1>
               <input
                 multiple
                 type="file"
@@ -96,7 +105,7 @@
                 onChange={this.handleFileChange}
               />
 
-              <h1>Step 2. Preview your signature image</h1>
+              <h1>Step 3. Preview the signature image</h1>
               <canvas
                 ref={input => this.canvas = input}
                 style={{ border: '1px solid black' }}
@@ -105,7 +114,7 @@
               </canvas>
 
               <h1>
-                Step 3.
+                Step 4.
                 <a
                   href={dataURL}
                   download="signature.jpg"
