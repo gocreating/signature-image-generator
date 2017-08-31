@@ -71,8 +71,14 @@
               currentYOffset = currentYOffset + imgObj.height;
             });
 
-            this.setState({
-              dataURL: this.canvas.toDataURL('image/jpeg'),
+            let dataURL = this.canvas.toDataURL('image/jpeg').replace('image/jpeg', 'application/octet-stream');
+
+            this.canvas.toBlob((blob) => {
+              let url = URL.createObjectURL(blob);
+
+              this.setState({
+                dataURL: url,
+              });
             });
           });
         }
