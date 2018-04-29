@@ -20,4 +20,4 @@ The signature image below is built from [these 17 images](https://github.com/goc
 
 ![](./examples/bau-tou/signature.jpg)
 
-The images are  sourced from [[神人] 神黑色比基尼那個](https://www.ptt.cc/bbs/Beauty/M.1523627509.A.686.html).
+The images are  sourced from [[神人] 神黑色比基尼那個](https://www.ptt.cc/bbs/Beauty/M.1523627509.A.686.html) and [[正妹] 這畫面太美](https://www.ptt.cc/bbs/Beauty/M.1524927171.A.F75.html).
